@@ -1,6 +1,8 @@
 package main
 
 import (
+	"ai-assignment-1/selection"
+	"ai-assignment-1/variables"
 	"bufio"
 	"log"
 	"math"
@@ -18,51 +20,46 @@ type City struct {
 }
 
 func main() {
-    filename := "data/berlin52.tsp"
-    log.Printf("Reading File: %s", filename)
-    cities, err := readTSPFile(filename)
-    if err != nil {
-        log.Fatalf("Error reading file: %v", err)
-    }
-    log.Printf("Successfully read %d cities", len(cities))
+	filename := "data/berlin52.tsp"
+	log.Printf("Reading File: %s", filename)
+	cities, err := readTSPFile(filename)
+	if err != nil {
+		log.Fatalf("Error reading file: %v", err)
+	}
+	log.Printf("Successfully read %d cities", len(cities))
 
-    // Run the genetic algorithm
-    populationSize := 50
-    generations := 1000
-    tournamentSize := 5
-    crossoverRate := 80  // 80% chance for crossover
-    mutationRate := 5    // 5% chance for mutation
+	vars := variables.LoadVariables()
 
-    bestTour := geneticAlgorithm(cities, populationSize, generations, tournamentSize, crossoverRate, mutationRate)
+	// Run the genetic algorithm
+	bestTour := geneticAlgorithm(cities, vars.PopulationSize, vars.Generations, vars.TournamentSize, vars.CrossoverRate, vars.MutationRate, vars.ElitismCount)
 
-    // Output the best tour and its distance
-    bestDistance := calculateTourDistance(bestTour, cities)
-    log.Printf("Best Tour: %v", bestTour)
-    log.Printf("Best Tour Distance: %f", bestDistance)
+	// Output the best tour and its distance
+	bestDistance := calculateTourDistance(bestTour, cities)
+	log.Printf("Best Tour: %v", bestTour)
+	log.Printf("Best Tour Distance: %f", bestDistance)
 }
-
 
 // generateRandomTour generates a random tour of cities
 // The Order of the cities in which the salesman will visit
 func generateRandomTour(numCities int) []int {
-    tour := make([]int, numCities)
-    for i := 0; i < numCities; i++ {
-        tour[i] = i
-    }
-    rand.Shuffle(len(tour), func(i, j int) {
-        tour[i], tour[j] = tour[j], tour[i]
-    })
-    return tour
+	tour := make([]int, numCities)
+	for i := 0; i < numCities; i++ {
+		tour[i] = i
+	}
+	rand.Shuffle(len(tour), func(i, j int) {
+		tour[i], tour[j] = tour[j], tour[i]
+	})
+	return tour
 }
 
 func generatePopulation(numCities, populationSize int) [][]int {
-    log.Println("Generating Population")
-    population := make([][]int, populationSize)
-    for i := 0; i < populationSize; i++ {
-        population[i] = generateRandomTour(numCities)
-    }
-    log.Println("Population Generated")
-    return population
+	log.Println("Generating Population")
+	population := make([][]int, populationSize)
+	for i := 0; i < populationSize; i++ {
+		population[i] = generateRandomTour(numCities)
+	}
+	log.Println("Population Generated")
+	return population
 }
 
 // readTSPFile parses a TSPLIB file and returns a slice of City structs.
@@ -124,198 +121,196 @@ func readTSPFile(filename string) ([]City, error) {
 }
 
 func calculateEuclideanDistance(cityA, cityB City) float64 {
-    x := math.Pow(cityA.X - cityB.X, 2)
-    y := math.Pow(cityA.Y - cityB.Y, 2)
-    distance := math.Sqrt(x + y)
-    return distance
+	x := math.Pow(cityA.X-cityB.X, 2)
+	y := math.Pow(cityA.Y-cityB.Y, 2)
+	distance := math.Sqrt(x + y)
+	return distance
 }
 
-func calculateTourDistance(tour []int, cities []City) float64{
-    toalDistance := 0.0
-    for i := 0; i < len(tour) - 1; i++ {
-        toalDistance += calculateEuclideanDistance(cities[tour[i]], cities[tour[i+1]])
-    }
-    toalDistance += calculateEuclideanDistance(cities[tour[len(tour)-1]], cities[tour[0]])
-    return toalDistance
+func calculateTourDistance(tour []int, cities []City) float64 {
+	toalDistance := 0.0
+	for i := 0; i < len(tour)-1; i++ {
+		toalDistance += calculateEuclideanDistance(cities[tour[i]], cities[tour[i+1]])
+	}
+    // Distance to return 
+	toalDistance += calculateEuclideanDistance(cities[tour[len(tour)-1]], cities[tour[0]])
+	return toalDistance
 }
 
 func evaluatePopulation(population [][]int, cities []City) []float64 {
-    fitness := make([]float64, len(population))
-    for i := 0; i < len(population); i++ {
-        fitness[i] = calculateTourDistance(population[i], cities)
-    }
-    return fitness
-}
-
-func tournamentSelection(population [][]int, fitness []float64, tournamentSize int) []int {
-    var (
-        bestIndex int
-        bestFitness float64
-    )
-    
-    for i := 0; i < tournamentSize; i++ {
-        randIndex := rand.Intn(len(population))
-        if fitness[randIndex] < bestFitness {
-            bestFitness = fitness[randIndex]
-            bestIndex = randIndex
-        }
-    }
-    return population[bestIndex]
+	fitness := make([]float64, len(population))
+	for i := 0; i < len(population); i++ {
+		fitness[i] = calculateTourDistance(population[i], cities)
+	}
+	return fitness
 }
 
 // CROSSOVER FUNCTIONS
 
 func orderedCrossover(p1, p2 []int) []int {
-    size := len(p1)
-    start := rand.Intn(size)
-    end := rand.Intn(size)
+	size := len(p1)
+	start := rand.Intn(size)
+	end := rand.Intn(size)
 
-    if start > end {
-        start, end = end, start
-    }
+	if start > end {
+		start, end = end, start
+	}
 
-    child := make([]int, size)
-    copy(child[start:end], p1[start:end])
+	child := make([]int, size)
+	copy(child[start:end], p1[start:end])
 
-    for i := 0; i < size; i++ {
-        if i < start || i >= end {
-            for j := 0; j < size; j++ {
-                if !contains(child, p2[j]) {
-                    child[i] = p2[j]
-                    break
-                }
-            }
-        }
-    }
-    return child
+	for i := 0; i < size; i++ {
+		if i < start || i >= end {
+			for j := 0; j < size; j++ {
+				if !contains(child, p2[j]) {
+					child[i] = p2[j]
+					break
+				}
+			}
+		}
+	}
+	return child
 }
 
-func pmxCrossover(p1,p2 []int) []int {
-    start := rand.Intn(len(p1))
-    end := rand.Intn(len(p1))
+func pmxCrossover(p1, p2 []int) []int {
+	start := rand.Intn(len(p1))
+	end := rand.Intn(len(p1))
 
-    if start > end {
-        start, end = end, start
-    }
+	if start > end {
+		start, end = end, start
+	}
 
-    child := make([]int, len(p1))
-    copy(child[start:end], p1[start:end])
+	child := make([]int, len(p1))
+	copy(child[start:end], p1[start:end])
 
-    for i := 0; i < len(p1); i++ {
-        if i < start || i >= end {
-            for j := 0; j < len(p2); j++ {
-                if !contains(child, p2[j]) {
-                    child[i] = p2[j]
-                    break
-                }
-            }
-        }
-    }
-    return child
+	for i := 0; i < len(p1); i++ {
+		if i < start || i >= end {
+			for j := 0; j < len(p2); j++ {
+				if !contains(child, p2[j]) {
+					child[i] = p2[j]
+					break
+				}
+			}
+		}
+	}
+	return child
 }
-
 
 // MUTATIONS
 
 func swap(tour []int) []int {
-    i := rand.Intn(len(tour))
-    j := rand.Intn(len(tour))
-    tour[i], tour[j] = tour[j], tour[i]
-    return tour
+	i := rand.Intn(len(tour))
+	j := rand.Intn(len(tour))
+	tour[i], tour[j] = tour[j], tour[i]
+	return tour
 }
 
 func inversionMutation(tour []int) []int {
-    // Create a copy of the original tour to avoid modifying it directly
-    mutatedTour := append([]int(nil), tour...) 
+	// Create a copy of the original tour to avoid modifying it directly
+	mutatedTour := append([]int(nil), tour...)
 
-    // Pick two random indices
-    i := rand.Intn(len(mutatedTour))
-    j := rand.Intn(len(mutatedTour))
+	// Pick two random indices
+	i := rand.Intn(len(mutatedTour))
+	j := rand.Intn(len(mutatedTour))
 
-    if i > j {
-        i, j = j, i
-    }
+	if i > j {
+		i, j = j, i
+	}
 
-    for i < j {
-        mutatedTour[i], mutatedTour[j] = mutatedTour[j], mutatedTour[i]
-        i++
-        j--
-    }
-    return mutatedTour
+	for i < j {
+		mutatedTour[i], mutatedTour[j] = mutatedTour[j], mutatedTour[i]
+		i++
+		j--
+	}
+	return mutatedTour
 }
 
-
-
-// UTILS 
+// UTILS
 
 func contains(tour []int, city int) bool {
-    for _, c := range tour {
-        if c == city {
-            return true
-        }
-    }
-    return false
+	for _, c := range tour {
+		if c == city {
+			return true
+		}
+	}
+	return false
 }
 
+func geneticAlgorithm(cities []City, populationSize, generations, tournamentSize, crossoverRate, mutationRate, elitismCount int) []int {
+	population := generatePopulation(len(cities), populationSize)
+	bestTour := population[0] // Start by assuming the first tour is the best
+	bestFitness := math.MaxFloat64
 
+	for gen := 0; gen < generations; gen++ {
+		fitness := evaluatePopulation(population, cities)
 
-func geneticAlgorithm(cities []City, populationSize, generations, tournamentSize, crossoverRate, mutationRate int) []int {
-    population := generatePopulation(len(cities), populationSize)
-    bestTour := population[0] // Start by assuming the first tour is the best
-    bestFitness := math.MaxFloat64
+		// Create the next generation
+		nextGeneration := make([][]int, populationSize)
 
-    for gen := 0; gen < generations; gen++ {
-        fitness := evaluatePopulation(population, cities)
-        
-        // Create the next generation
-        nextGeneration := make([][]int, populationSize)
-        
-        for i := 0; i < populationSize; i++ {
-            // Selection
-            parent1 := tournamentSelection(population, fitness, tournamentSize)
-            parent2 := tournamentSelection(population, fitness, tournamentSize)
-            
-            var child []int
-            // Crossover
-            if rand.Float64() < float64(crossoverRate)/100.0 {
-                // Choose between OX or PMX based on some probability
-                if rand.Float64() < 0.5 {
-                    child = orderedCrossover(parent1, parent2)
-                } else {
-                    child = pmxCrossover(parent1, parent2)
-                }
-            } else {
-                child = append([]int(nil), parent1...) // No crossover, just copy parent1
-            }
+		// Elitism: carry over the best individuals
+		for i := 0; i < elitismCount; i++ {
+			bestIndex := findBestIndex(fitness)
+			nextGeneration[i] = append([]int(nil), population[bestIndex]...)
+			fitness[bestIndex] = math.MaxFloat64 // Mark as used
+		}
 
-            // Mutation
-            if rand.Float64() < float64(mutationRate)/100.0 {
-                // Choose mutation
-                if rand.Float64() < 0.5 {
-                    child = swap(child)
-                } else {
-                    child = inversionMutation(child)
-                }
-            }
+		for i := elitismCount; i < populationSize; i++ {
+			// Selection
+			parent1 := selection.TournamentSelection(population, fitness, tournamentSize)
+			parent2 := selection.TournamentSelection(population, fitness, tournamentSize)
 
-            nextGeneration[i] = child
-        }
-        
-        // Evaluate the next generation
-        population = nextGeneration
-        fitness = evaluatePopulation(population, cities)
+			var child []int
+			// Crossover
+			if rand.Float64() < float64(crossoverRate)/100.0 {
+				// Choose between OX or PMX based on some probability
+				if rand.Float64() < 0.5 {
+					child = orderedCrossover(parent1, parent2)
+				} else {
+					child = pmxCrossover(parent1, parent2)
+				}
+			} else {
+				child = append([]int(nil), parent1...) // No crossover, just copy parent1
+			}
 
-        // Track the best fitness in this generation
-        for i, f := range fitness {
-            if f < bestFitness {
-                bestFitness = f
-                bestTour = population[i]
-            }
-        }
+			// Mutation
+			if rand.Float64() < float64(mutationRate)/100.0 {
+				// Choose mutation
+				if rand.Float64() < 0.5 {
+					child = swap(child)
+				} else {
+					child = inversionMutation(child)
+				}
+			}
 
-        log.Printf("Generation %d: Best Fitness = %f", gen, bestFitness)
-    }
+			nextGeneration[i] = child
+		}
 
-    return bestTour // Return the best solution found during all generations
+		// Evaluate the next generation
+		population = nextGeneration
+		fitness = evaluatePopulation(population, cities)
+
+		// Track the best fitness in this generation
+		for i, f := range fitness {
+			if f < bestFitness {
+				bestFitness = f
+				bestTour = population[i]
+			}
+		}
+
+		log.Printf("Generation %d: Best Fitness = %f", gen, bestFitness)
+	}
+
+	return bestTour // Return the best solution found during all generations
 }
 
+func findBestIndex(fitness []float64) int {
+	bestIndex := 0
+	bestFitness := fitness[0]
+	for i, f := range fitness {
+		if f < bestFitness {
+			bestFitness = f
+			bestIndex = i
+		}
+	}
+	return bestIndex
+}

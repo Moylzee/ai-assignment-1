@@ -15,6 +15,7 @@ import (
 	"strconv"
 )
 
+
 var (
 	berlin = "data/berlin52.tsp"
 	pr     = "data/pr1002.tsp"
@@ -35,7 +36,7 @@ func main() {
 
 	log.Printf("Successfully read %d cities", len(cities))
 
-	vars := variables.LoadVariables()
+	vars := variables.LoadVariables(filename)
 
 	// Run the genetic algorithm
 	bestTour := geneticAlgorithm(cities, vars.PopulationSize, vars.Generations, vars.TournamentSize, vars.CrossoverRate, vars.MutationRate, vars.ElitismCount)

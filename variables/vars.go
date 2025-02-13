@@ -11,11 +11,11 @@ type vars struct {
 
 func LoadVariables() vars {
 	return vars{
-		PopulationSize: 200,
-		Generations:    2500,
+		PopulationSize: 500,
+		Generations:    1000,
 		TournamentSize: 5,
 		CrossoverRate:  95,
-		MutationRate:   10,
+		MutationRate:   5,
 		ElitismCount:   2,
 	}
 }

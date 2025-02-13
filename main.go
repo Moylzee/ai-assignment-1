@@ -6,18 +6,25 @@ import (
 	"ai-assignment-1/selection"
 	"ai-assignment-1/utilities"
 	"ai-assignment-1/variables"
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
 	"log"
 	"math"
 	"math/rand"
+	"strconv"
 )
 
 var (
 	berlin = "data/berlin52.tsp"
 	pr     = "data/pr1002.tsp"
+	kr     = "data/kroA100.tsp"
+	D      map[int]int
+	F      map[int]float64
 )
 
 func main() {
-	filename := pr
+	filename := berlin
 	log.Printf("Reading File: %s", filename)
 
 	// Read The cities from the file
@@ -38,6 +45,11 @@ func main() {
 
 	log.Printf("Best Tour: %v", bestTour)
 	log.Printf("Best Tour Distance: %f", bestDistance)
+
+	// Save the best tour and cities to a JSON file
+	saveBestTour(cities, bestTour)
+	saveDistances(D)
+	saveFitnesses(F)
 }
 
 // generateRandomTour generates a random tour of cities
@@ -91,7 +103,9 @@ func evaluatePopulation(population [][]int, cities []variables.City) []float64 {
 func geneticAlgorithm(cities []variables.City, populationSize, generations, tournamentSize, crossoverRate, mutationRate, elitismCount int) []int {
 	population := generatePopulation(len(cities), populationSize)
 	bestTour := population[0] // Start by assuming the first tour is the best
-	bestFitness := math.MaxFloat64
+	bestDistance := math.MaxFloat64
+	distances := make(map[int]int)
+	fitnesses := make(map[int]float64)
 
 	for gen := 0; gen < generations; gen++ {
 		fitness := evaluatePopulation(population, cities)
@@ -115,7 +129,7 @@ func geneticAlgorithm(cities []variables.City, populationSize, generations, tour
 			// Crossover
 			if rand.Float64() < float64(crossoverRate)/100.0 {
 				// Choose between OX or PMX based on some probability
-				if rand.Float64() < 0.5 {
+				if rand.Float64() < 0.95 {
 					child = crossover.OrderedCrossover(parent1, parent2)
 				} else {
 					child = crossover.PmxCrossover(parent1, parent2)
@@ -143,26 +157,110 @@ func geneticAlgorithm(cities []variables.City, populationSize, generations, tour
 
 		// Track the best fitness in this generation
 		for i, f := range fitness {
-			if f < bestFitness {
-				bestFitness = f
+			if f < bestDistance {
+				bestDistance = f
 				bestTour = population[i]
 			}
 		}
 
-		log.Printf("Generation %d: Best Fitness = %f", gen, bestFitness)
+		// Check and update distances map
+		exists := false
+		for _, v := range distances {
+			if v == int(bestDistance) {
+				exists = true
+				break
+			}
+		}
+		if !exists {
+			distances[gen] = int(bestDistance)
+		}
+
+		fit := 1 / bestDistance
+		formattedFit := fmt.Sprintf("%.6f", fit)
+		fit, _ = strconv.ParseFloat(formattedFit, 64)
+
+		fitExists := false
+		for _, v := range fitnesses {
+			if v == fit {
+				fitExists = true
+				break
+			}
+		}
+		if !fitExists {
+			fitnesses[gen] = fit
+		}
+
+		log.Printf("Generation %d: Best Distance = %f | Fitness: %f", gen, bestDistance, fit)
 	}
 
+	F = fitnesses
+	D = distances
 	return bestTour // Return the best solution found during all generations
 }
 
 func findBestIndex(fitness []float64) int {
 	bestIndex := 0
-	bestFitness := fitness[0]
+	bestDistance := fitness[0]
 	for i, f := range fitness {
-		if f < bestFitness {
-			bestFitness = f
+		if f < bestDistance {
+			bestDistance = f
 			bestIndex = i
 		}
 	}
 	return bestIndex
+}
+
+func saveBestTour(cities []variables.City, bestTour []int) {
+	data := map[string]interface{}{
+		"cities":    cities,
+		"best_tour": bestTour,
+	}
+
+	jsonData, err := json.MarshalIndent(data, "", "  ")
+	if err != nil {
+		log.Fatalf("Error marshalling JSON: %v", err)
+	}
+
+	err = ioutil.WriteFile("results/best_tour.json", jsonData, 0644)
+	if err != nil {
+		log.Fatalf("Error writing JSON file: %v", err)
+	}
+
+	log.Println("Best tour and cities saved to best_tour.json")
+}
+
+func saveDistances(distances map[int]int) {
+	data := map[string]interface{}{
+		"distances": distances,
+	}
+
+	jsonData, err := json.MarshalIndent(data, "", "  ")
+	if err != nil {
+		log.Fatalf("Error marshalling JSON: %v", err)
+	}
+
+	err = ioutil.WriteFile("results/distances.json", jsonData, 0644)
+	if err != nil {
+		log.Fatalf("Error writing JSON file: %v", err)
+	}
+
+	log.Println("Distances saved to distances.json")
+}
+
+func saveFitnesses(fitnesses map[int]float64) {
+	data := map[string]interface{}{
+		"fitnesses": fitnesses,
+	}
+
+	jsonData, err := json.MarshalIndent(data, "", "  ")
+	if err != nil {
+		log.Fatalf("Error marshalling JSON: %v", err)
+	}
+
+	err = ioutil.WriteFile("results/fitnesses.json", jsonData, 0644)
+	if err != nil {
+		log.Fatalf("Error writing JSON file: %v", err)
+	}
+
+	log.Println("Fitnesses saved to fitnesses.json")
 }

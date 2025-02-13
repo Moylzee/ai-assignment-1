@@ -54,6 +54,7 @@ type vars struct {
 	ElitismCount   int
 }
 
+
 func LoadVariables(filename string) vars {
 	switch filename {
 	case "berlin":

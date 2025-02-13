@@ -11,9 +11,13 @@ import (
 	"math/rand"
 )
 
+
 var (
 	berlin = "data/berlin52.tsp"
-	pr     = "data/pr1002.tsp"
+    pcb = "data/pcb442.tsp"
+    ali = "data/ali535.tsp"
+	kr = "data/kroA100.tsp"
+	pr = "data/pr1002.tsp"
 )
 
 func main() {
@@ -28,7 +32,7 @@ func main() {
 
 	log.Printf("Successfully read %d cities", len(cities))
 
-	vars := variables.LoadVariables()
+	vars := variables.LoadVariables(filename)
 
 	// Run the genetic algorithm
 	bestTour := geneticAlgorithm(cities, vars.PopulationSize, vars.Generations, vars.TournamentSize, vars.CrossoverRate, vars.MutationRate, vars.ElitismCount)

@@ -7,42 +7,27 @@ var BerlinVariables = vars{
 	CrossoverRate:  95,
 	MutationRate:   10,
 	ElitismCount:   2,
-}
-
-var PcbVariables = vars{
-	PopulationSize: 500,  // Increased population size
-	Generations:    5000, // Increased number of generations
-	TournamentSize: 10,   // Increased tournament size
-	CrossoverRate:  90,   // Adjusted crossover rate
-	MutationRate:   15,   // Adjusted mutation rate
-	ElitismCount:   5,    // Increased elitism count
-}
-
-var AliVariables = vars{
-	PopulationSize: 300,
-	Generations:    5000,
-	TournamentSize: 5,
-	CrossoverRate:  95,
-	MutationRate:   10,
-	ElitismCount:   2,
+	CrossChance:    100,
 }
 
 var krVariables = vars{
-	PopulationSize: 300,
-	Generations:    3000,
+	PopulationSize: 200,
+	Generations:    2500,
 	TournamentSize: 5,
 	CrossoverRate:  95,
 	MutationRate:   10,
 	ElitismCount:   2,
+	CrossChance:    0.95,
 }
 
 var prVariables = vars{
-	PopulationSize: 500,
-	Generations:    5000,
-	TournamentSize: 5,
+	PopulationSize: 200,
+	Generations:    100000,
+	TournamentSize: 3,
 	CrossoverRate:  95,
 	MutationRate:   10,
 	ElitismCount:   2,
+	CrossChance:    0.0,
 }
 
 type vars struct {
@@ -52,23 +37,20 @@ type vars struct {
 	CrossoverRate  int
 	MutationRate   int
 	ElitismCount   int
+	CrossChance    float64
 }
-
 
 func LoadVariables(filename string) vars {
 	switch filename {
-	case "berlin":
+	case "data/berlin52.tsp":
 		return BerlinVariables
-	case "pcb":
-		return PcbVariables
-	case "ali":
-		return AliVariables
-	case "kr":
+	case "data/kroA100.tsp":
 		return krVariables
-	case "pr":
+	case "data/pr1002.tsp":
 		return prVariables
+	default:
+		return BerlinVariables
 	}
-	return BerlinVariables
 }
 
 // City represents a city with an ID and coordinates.

@@ -15,7 +15,6 @@ import (
 	"strconv"
 )
 
-
 var (
 	berlin = "data/berlin52.tsp"
 	pr     = "data/pr1002.tsp"
@@ -25,7 +24,7 @@ var (
 )
 
 func main() {
-	filename := berlin
+	filename := kr
 	log.Printf("Reading File: %s", filename)
 
 	// Read The cities from the file
@@ -39,8 +38,8 @@ func main() {
 	vars := variables.LoadVariables(filename)
 
 	// Run the genetic algorithm
-	bestTour := geneticAlgorithm(cities, vars.PopulationSize, vars.Generations, vars.TournamentSize, vars.CrossoverRate, vars.MutationRate, vars.ElitismCount)
-
+	log.Println(vars)
+	bestTour := geneticAlgorithm(cities, vars.PopulationSize, vars.Generations, vars.TournamentSize, vars.CrossoverRate, vars.MutationRate, vars.ElitismCount, vars.CrossChance)
 	// Output the best tour and its distance
 	bestDistance := calculateTourDistance(bestTour, cities)
 
@@ -101,7 +100,7 @@ func evaluatePopulation(population [][]int, cities []variables.City) []float64 {
 	return fitness
 }
 
-func geneticAlgorithm(cities []variables.City, populationSize, generations, tournamentSize, crossoverRate, mutationRate, elitismCount int) []int {
+func geneticAlgorithm(cities []variables.City, populationSize, generations, tournamentSize, crossoverRate, mutationRate, elitismCount int, cc float64) []int {
 	population := generatePopulation(len(cities), populationSize)
 	bestTour := population[0] // Start by assuming the first tour is the best
 	bestDistance := math.MaxFloat64
@@ -122,15 +121,14 @@ func geneticAlgorithm(cities []variables.City, populationSize, generations, tour
 		}
 
 		for i := elitismCount; i < populationSize; i++ {
-			// Selection
 			parent1 := selection.TournamentSelection(population, fitness, tournamentSize)
 			parent2 := selection.TournamentSelection(population, fitness, tournamentSize)
-
+			// Selection
 			var child []int
 			// Crossover
 			if rand.Float64() < float64(crossoverRate)/100.0 {
 				// Choose between OX or PMX based on some probability
-				if rand.Float64() < 0.95 {
+				if rand.Float64() < cc {
 					child = crossover.OrderedCrossover(parent1, parent2)
 				} else {
 					child = crossover.PmxCrossover(parent1, parent2)
@@ -148,7 +146,6 @@ func geneticAlgorithm(cities []variables.City, populationSize, generations, tour
 					child = mutations.InversionMutation(child)
 				}
 			}
-
 			nextGeneration[i] = child
 		}
 

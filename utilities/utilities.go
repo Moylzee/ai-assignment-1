@@ -19,15 +19,6 @@ func Contains(tour []int, city int) bool {
 	return false
 }
 
-func Contains64(fitnessArray []float64, fitness float64) bool {
-	for _, f := range fitnessArray {
-		if f == fitness {
-			return true
-		}
-	}
-	return false
-}
-
 // readTSPFile parses a TSPLIB file and returns a slice of City structs.
 func ReadTSPFile(filename string) ([]variables.City, error) {
 	file, err := os.Open(filename)

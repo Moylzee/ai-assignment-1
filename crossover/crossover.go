@@ -31,25 +31,32 @@ func OrderedCrossover(p1, p2 []int) []int {
 }
 
 func PmxCrossover(p1, p2 []int) []int {
-	start := rand.Intn(len(p1))
-	end := rand.Intn(len(p1))
+	n := len(p1)
+	child := make([]int, n)
 
+	start, end := rand.Intn(n), rand.Intn(n)
 	if start > end {
 		start, end = end, start
 	}
+    used := make(map[int]bool, n)
 
-	child := make([]int, len(p1))
 	copy(child[start:end], p1[start:end])
-
-	for i := 0; i < len(p1); i++ {
+    for i := start; i < end; i++ {
+        used[p1[i]] = true
+    }
+    
+	j := 0
+	for i := 0; i < n; i++ {
 		if i < start || i >= end {
-			for j := 0; j < len(p2); j++ {
-				if !utilities.Contains(child, p2[j]) {
-					child[i] = p2[j]
-					break
-				}
+			// Find next unused value from p2
+			for used[p2[j]] {
+				j++
 			}
+			child[i] = p2[j]
+			used[p2[j]] = true
+			j++
 		}
 	}
+
 	return child
 }

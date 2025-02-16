@@ -6,7 +6,7 @@ import (
 )
 
 func TournamentSelection(population [][]int, fitness []float64, tournamentSize int) []int {
-	bestIndex := -1
+	bestIndex := 0
 	bestFitness := math.MaxFloat64
 
 	for i := 0; i < tournamentSize; i++ {

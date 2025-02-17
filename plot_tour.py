@@ -19,28 +19,11 @@ def plot_tour(cities, tour):
     plt.grid(True)
     plt.show()
 
-def plot_fitnesses(fitnesses):
-    plt.figure(figsize=(10, 6))
-    plt.plot(fitnesses, 'o-', markersize=5, linewidth=1, color='red')
-    plt.title('Fitness Over Generations')
-    plt.xlabel('Generation')
-    plt.ylabel('Fitness')
-    plt.grid(True)
-    plt.gca().yaxis.set_major_locator(plt.MultipleLocator(2000))  # Set y-axis intervals to twice as much
-    plt.show()
-
 if __name__ == "__main__":
     # Load cities and best tour from JSON file
-    with open('results/best_tour.json', 'r') as f:
+    with open('results/pr/best_tour.json', 'r') as f:
         data = json.load(f)
         cities = [City(**city) for city in data['cities']]
         best_tour = data['best_tour']
 
     plot_tour(cities, best_tour)
-
-    # Load fitnesses from JSON file
-    with open('results/fitnesses.json', 'r') as f:
-        data = json.load(f)
-        fitnesses = data['fitnesses']
-
-    plot_fitnesses(fitnesses)

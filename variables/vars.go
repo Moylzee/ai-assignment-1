@@ -1,17 +1,22 @@
 package variables
 
+// This file is used to store the variables for the genetic algorithm
+// The variables are stored in a struct and can be accessed by importing this file
+
+// Variables to use with the Berlin52 file
 var BerlinVariables = vars{
-	PopulationSize: 200,
+	PopulationSize: 1000,
 	Generations:    2500,
 	TournamentSize: 5,
 	CrossoverRate:  95,
-	MutationRate:   10,
+	MutationRate:   5,
 	ElitismCount:   2,
 	CrossChance:    100,
 }
 
+// Variables to use with the kroA100 file
 var krVariables = vars{
-	PopulationSize: 200,
+	PopulationSize: 10,
 	Generations:    2500,
 	TournamentSize: 5,
 	CrossoverRate:  95,
@@ -20,16 +25,18 @@ var krVariables = vars{
 	CrossChance:    0.95,
 }
 
+// Variables to use with the pr1002 file
 var prVariables = vars{
-	PopulationSize: 200,
+	PopulationSize: 50,
 	Generations:    100000,
 	TournamentSize: 3,
 	CrossoverRate:  95,
-	MutationRate:   10,
+	MutationRate:   2,
 	ElitismCount:   2,
 	CrossChance:    0.0,
 }
 
+// Struct for the Variables
 type vars struct {
 	PopulationSize int
 	Generations    int
@@ -40,6 +47,7 @@ type vars struct {
 	CrossChance    float64
 }
 
+// Return the Variables depending on what file is being used
 func LoadVariables(filename string) vars {
 	switch filename {
 	case "data/berlin52.tsp":

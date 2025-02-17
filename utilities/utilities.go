@@ -3,11 +3,40 @@ package utilities
 import (
 	"ai-assignment-1/variables"
 	"bufio"
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
 	"log"
+	"math/rand"
 	"os"
 	"strconv"
 	"strings"
 )
+
+// generateRandomTour generates a random tour of cities
+// The Order of the cities in which the salesman will visit
+func generateRandomTour(numCities int) []int {
+	log.Println("Generating Random Tour")
+	tour := make([]int, numCities)
+	for i := 0; i < numCities; i++ {
+		tour[i] = i
+	}
+	rand.Shuffle(len(tour), func(i, j int) {
+		tour[i], tour[j] = tour[j], tour[i]
+	})
+	log.Println("Successfully Generated Random Tour")
+	return tour
+}
+
+func GeneratePopulation(numCities, populationSize int) [][]int {
+	log.Println("Generating Population")
+	population := make([][]int, populationSize)
+	for i := 0; i < populationSize; i++ {
+		population[i] = generateRandomTour(numCities)
+	}
+	log.Println("Population Generated")
+	return population
+}
 
 // Niche little helper function
 func Contains(tour []int, city int) bool {
@@ -76,4 +105,70 @@ func ReadTSPFile(filename string) ([]variables.City, error) {
 	}
 
 	return cities, nil
+}
+
+// Write Results to Files
+
+func SaveDistances(distances map[int]int, fileDir string) {
+	data := map[string]interface{}{
+		"distances": distances,
+	}
+
+	jsonData, err := json.MarshalIndent(data, "", "  ")
+	if err != nil {
+		log.Fatalf("Error marshalling JSON: %v", err)
+	}
+
+	// Build the FilePath
+	filepath := fmt.Sprintf("../results/%s/best_tour.json", fileDir)
+
+	err = ioutil.WriteFile(filepath, jsonData, 0644)
+	if err != nil {
+		log.Fatalf("Error writing JSON file: %v", err)
+	}
+
+	log.Println("Distances saved to distances.json")
+}
+
+func SaveFitnesses(fitnesses map[int]float64, fileDir string) {
+	data := map[string]interface{}{
+		"fitnesses": fitnesses,
+	}
+
+	jsonData, err := json.MarshalIndent(data, "", "  ")
+	if err != nil {
+		log.Fatalf("Error marshalling JSON: %v", err)
+	}
+
+	// Build the FilePath
+	filepath := fmt.Sprintf("../results/%s/best_tour.json", fileDir)
+
+	err = ioutil.WriteFile(filepath, jsonData, 0644)
+	if err != nil {
+		log.Fatalf("Error writing JSON file: %v", err)
+	}
+
+	log.Println("Fitnesses saved to fitnesses.json")
+}
+
+func SaveBestTour(cities []variables.City, bestTour []int, fileDir string) {
+	data := map[string]interface{}{
+		"cities":    cities,
+		"best_tour": bestTour,
+	}
+
+	jsonData, err := json.MarshalIndent(data, "", "  ")
+	if err != nil {
+		log.Fatalf("Error marshalling JSON: %v", err)
+	}
+
+	// Build the FilePath
+	filepath := fmt.Sprintf("../results/%s/best_tour.json", fileDir)
+
+	err = ioutil.WriteFile(filepath, jsonData, 0644)
+	if err != nil {
+		log.Fatalf("Error writing JSON file: %v", err)
+	}
+
+	log.Println("Best tour and cities saved to best_tour.json")
 }

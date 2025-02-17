@@ -120,7 +120,16 @@ func SaveDistances(distances map[int]int, fileDir string) {
 	}
 
 	// Build the FilePath
-	filepath := fmt.Sprintf("../results/%s/best_tour.json", fileDir)
+	var dir string
+	switch fileDir {
+	case "data/berlin52.tsp":
+		dir = "br"
+	case "data/pr1002.tsp":
+		dir = "pr"
+	case "data/kroA100.tsp":
+		dir = "kr"
+	}
+	filepath := fmt.Sprintf("results/%s/best_tour.json", dir)
 
 	err = ioutil.WriteFile(filepath, jsonData, 0644)
 	if err != nil {
@@ -141,7 +150,16 @@ func SaveFitnesses(fitnesses map[int]float64, fileDir string) {
 	}
 
 	// Build the FilePath
-	filepath := fmt.Sprintf("../results/%s/best_tour.json", fileDir)
+	var dir string
+	switch fileDir {
+	case "data/berlin52.tsp":
+		dir = "br"
+	case "data/pr1002.tsp":
+		dir = "pr1"
+	case "data/kroA100.tsp":
+		dir = "kr"
+	}
+	filepath := fmt.Sprintf("results/%s/best_tour.json", dir)
 
 	err = ioutil.WriteFile(filepath, jsonData, 0644)
 	if err != nil {
@@ -163,7 +181,16 @@ func SaveBestTour(cities []variables.City, bestTour []int, fileDir string) {
 	}
 
 	// Build the FilePath
-	filepath := fmt.Sprintf("../results/%s/best_tour.json", fileDir)
+	var dir string
+	switch fileDir {
+	case "data/berlin52.tsp":
+		dir = "br"
+	case "data/pr1002.tsp":
+		dir = "pr"
+	case "data/kroA100.tsp":
+		dir = "kr"
+	}
+	filepath := fmt.Sprintf("results/%s/best_tour.json", dir)
 
 	err = ioutil.WriteFile(filepath, jsonData, 0644)
 	if err != nil {

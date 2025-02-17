@@ -16,7 +16,7 @@ var BerlinVariables = vars{
 
 // Variables to use with the kroA100 file
 var krVariables = vars{
-	PopulationSize: 1000,
+	PopulationSize: 10,
 	Generations:    2500,
 	TournamentSize: 5,
 	CrossoverRate:  95,

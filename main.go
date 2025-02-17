@@ -24,7 +24,7 @@ var (
 )
 
 func main() {
-	filename := kr // The file in which we will run | Change this if you want to run a different file
+	filename := berlin // The file in which we will run | Change this if you want to run a different file
 	log.Printf("Reading File: %s", filename)
 
 	// Read The cities from the file

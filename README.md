@@ -20,6 +20,11 @@
     - pr (pr)
 - (Note: The Variable Names can be found on lines 20-22 of main.go)
 
+## How to Change Variables
+- Navigate to the vars.go file
+- Find the Struct for whichever file you would like to use
+- Change the variables
+
 ## How to Visualize Plots
 - After a runtime, the results will be saved in /results
 - To visualize your results, run any of the python scripts

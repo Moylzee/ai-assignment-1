@@ -5,7 +5,7 @@ package variables
 
 // Variables to use with the Berlin52 file
 var BerlinVariables = vars{
-	PopulationSize: 1000,
+	PopulationSize: 400,
 	Generations:    2500,
 	TournamentSize: 5,
 	CrossoverRate:  95,
@@ -16,7 +16,7 @@ var BerlinVariables = vars{
 
 // Variables to use with the kroA100 file
 var krVariables = vars{
-	PopulationSize: 10,
+	PopulationSize: 500,
 	Generations:    2500,
 	TournamentSize: 5,
 	CrossoverRate:  95,
@@ -27,11 +27,11 @@ var krVariables = vars{
 
 // Variables to use with the pr1002 file
 var prVariables = vars{
-	PopulationSize: 50,
+	PopulationSize: 1000,
 	Generations:    100000,
 	TournamentSize: 3,
 	CrossoverRate:  95,
-	MutationRate:   2,
+	MutationRate:   10,
 	ElitismCount:   2,
 	CrossChance:    0.0,
 }
